@@ -15,6 +15,14 @@ if (!publishMavenRelease && buildNum != null) {
     version += "-" + buildNum
 }
 
+publishing {
+    repositories {
+        maven {
+            url System.getenv("local_maven_url") // or `url "file://" + System.getenv("local_maven")`
+        }
+    }
+}
+
 java {
     withSourcesJar()
     withJavadocJar()
