@@ -45,6 +45,7 @@ tasks.named('publishGithub') {
     dependsOn(
             project(":common").tasks.remapJar,
             project(":neoforge").tasks.remapJar,
+            project(":language").tasks.jar,
     )
 
     // we need to do this here so that it waits until Forge is already configured
@@ -54,6 +55,7 @@ tasks.named('publishGithub') {
             additionalFiles.from(
                     project(":common").tasks.remapJar.archiveFile,
                     project(":neoforge").tasks.remapJar.archiveFile,
+                    project(":language").tasks.jar.archiveFile,
             )
         }
     }
