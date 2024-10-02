@@ -21,6 +21,12 @@ publishing {
             url System.getenv("local_maven_url") // or `url "file://" + System.getenv("local_maven")`
         }
     }
+    publications {
+        maven(MavenPublication) {
+            artifactId = project.archivesBaseName
+            from(components["java"])
+        }
+    }
 }
 
 java {
