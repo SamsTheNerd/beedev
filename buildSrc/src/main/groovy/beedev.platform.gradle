@@ -1,0 +1,101 @@
+plugins {
+    id 'me.modmuss50.mod-publish-plugin'
+}
+
+configurations {
+    common {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+    compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentNeoForge.extendsFrom common
+
+    // Files in this configuration will be bundled into your mod using the Shadow plugin.
+    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
+    shadowBundle {
+        canBeResolved = true
+        canBeConsumed = false
+    }
+}
+
+shadowJar {
+    exclude "architectury.common.json"
+    configurations = [project.configurations.shadowBundle]
+    archiveClassifier.set "dev-shadow"
+}
+
+remapJar {
+    input.set shadowJar.archiveFile
+    dependsOn shadowJar
+}
+
+sourcesJar {
+    def commonSources = project(":common").sourcesJar
+    dependsOn commonSources
+    from commonSources.archiveFile.map { zipTree(it) }
+}
+
+components.java {
+    withVariantsFromConfiguration(project.configurations.shadowRuntimeElements) {
+        skip()
+    }
+}
+
+publishing {
+    publications {
+        mavenFabric(MavenPublication) {
+            artifactId = archivesBaseName
+            from components.java
+        }
+    }
+
+    repositories {
+        maven {
+            url System.getenv("local_maven_url")
+        }
+    }
+}
+
+
+publishMods {
+    file = project.remapJar.archiveFile
+    additionalFiles.from(project.sourcesJar.archiveFile)
+    changelog = trimChangelog(file("$rootDir/changelog.md").text)
+    type = STABLE
+    modLoaders.addAll(platform.split(','))
+
+    dryRun = !(System.getenv("DRY_RUN") ?: "").isBlank()
+            || (System.getenv("CURSEFORGE_API_KEY") ?: "").isBlank()
+            || (System.getenv("MODRINTH_API_KEY") ?: "").isBlank()
+
+    def mainPlatformName = platform.split(',').getAt(0)
+    version = project.version + "-" + mainPlatformName
+    displayName = "Beesearch&Development" + " " + project.version + " [" + mainPlatformName.capitalize() + "]"
+
+    def cfDeps = (project.hasProperty("publishDepsCF") ? publishDepsCF : publishDeps).split(',')
+
+    curseforge {
+        accessToken = System.getenv("CURSEFORGE_API_KEY") ?: ""
+        projectId = project.beedev_curseforge_id
+        minecraftVersions.add(project.minecraft_version)
+        for(dep in cfDeps){
+            requires{
+                slug = dep
+            }
+        }
+    }
+
+    def modrinthDeps = (project.hasProperty("publishDepsModrinth") ? publishDepsCF : publishDeps).split(',')
+
+    modrinth {
+        accessToken = System.getenv("MODRINTH_API_KEY") ?: ""
+        projectId = project.beedev_modrinth_slug ?: ""
+        minecraftVersions.add(project.minecraft_version)
+        for(dep in modrinthDeps){
+            requires{
+                slug = dep
+            }
+        }
+    }
+}

@@ -1,0 +1,26 @@
+plugins {
+    id 'dev.architectury.loom' version '1.6-SNAPSHOT' apply false
+    id 'architectury-plugin' version '3.4-SNAPSHOT'
+    id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
+}
+
+architectury {
+    minecraft = project.minecraft_version
+}
+
+ext.trimChangelog = { changelogString ->
+    String changelogSec = ""
+    def lines = changelogString.split("\n")
+    Boolean going = false;
+    for (String line : lines){
+        if (line.startsWith("##") && !line.startsWith("###")){
+            if(going)
+                break
+            going = true;
+        }
+        if(going){
+            changelogSec += (line + "\n")
+        }
+    }
+    return changelogSec
+}

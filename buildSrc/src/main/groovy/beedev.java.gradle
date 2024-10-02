@@ -1,0 +1,28 @@
+plugins{
+    id 'java'
+    id 'architectury-plugin'
+    id 'maven-publish'
+}
+
+
+group = rootProject.maven_group
+archivesBaseName = rootProject.archives_base_name + "-" + project.name
+version = rootProject.mod_version
+
+boolean publishMavenRelease = System.getenv("PUBLISH_MAVEN_RELEASE") == "true"
+String buildNum = System.getenv('BUILD_NUMBER')
+if (!publishMavenRelease && buildNum != null) {
+    version += "-" + buildNum
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+tasks.withType(JavaCompile).configureEach {
+    it.options.release = 21
+}
