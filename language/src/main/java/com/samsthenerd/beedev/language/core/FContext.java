@@ -56,46 +56,4 @@ public class FContext {
     public Optional<FType> getBoundType(CombSym sym){
         return exprTypeBindings.get(sym);
     }
-//
-//    // determine if a type is valid in this context.
-//    public boolean isType(FType type){
-//        switch (type){
-//            // i don't think this is sufficient. it prob needs to check if the bound type is valid as well. would that recurse though?
-//            case FTypeVar v -> {return exprTypeBindings.get(v.sym()).isPresent();}
-//            case FFuncType ft -> {return isType(ft.fromType()) && isType(ft.toType()); }
-//            case FQuantType qt -> {return this.bindType(qt.typeVar().sym(), qt.typeVar()).isType(qt.typeBody()); }
-//            default -> {return false;}
-//        }
-//    }
-//
-//    // no inference rn ig
-//    public Optional<FType> getType(FExpression expr){
-//        switch (expr){
-//            case FVar v -> {
-//                return exprTypeBindings.get(v.sym());
-//            }
-//            case FLambda(FType argTp, FVar arg, FExpression body) -> {
-//                if(isType(argTp)) return Optional.empty();
-//                return this.bindType(arg.sym(), argTp).getType(body)
-//                    .map(fromTp -> new FFuncType(argTp, fromTp));
-//            }
-//            case FApp(FExpression f, FExpression arg) -> {
-//                if(getType(f).orElse(null) instanceof FFuncType(var fT, var tT)){
-//                    return getType(arg).map(argType -> tT);
-//                }
-//                return Optional.empty();
-//            }
-//            case FTypeAbs(FTypeVar typeVar, FExpression body) -> {
-//                return bindType(typeVar.sym(), typeVar).getType(body).map(bodyT -> new FQuantType(typeVar, bodyT));
-//            }
-//            case FTypeApp(FType actualT, FExpression vagueF) -> {
-//                if(getType(vagueF).orElse(null) instanceof FQuantType(FTypeVar tV, FType bodyT)
-//                && isType(actualT)){
-//                    return bodyT.substitute(actualT, tV);
-//                }
-//            }
-//            default -> { return Optional.empty(); }
-//        }
-//        return Optional.empty();
-//    }
 }

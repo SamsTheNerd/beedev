@@ -7,36 +7,45 @@ import java.util.UUID;
 // a symbol used in comb language
 public interface CombSym {
 
-    List<String> getNamespace();
+    // period separated
+    String getNamespace();
+
+    String getSpecifier();
+
+    default String asString(){
+        return getNamespace() + ":" + getSpecifier();
+    }
 
     // format "some.name.space:id
     static CombSym of(String str){
         String[] spl = str.split(":");
         if(spl.length == 1){
-            return new Basic(new ArrayList<>(), str);
+            return new Basic("", spl[0]);
         }
-        return new Basic(List.of(spl[0].split("\\.")), spl[1]);
+        return new Basic(spl[0], spl[1]);
+    }
+
+    // just for neatness
+    static CombSym of(String namespace, String specifier){
+        return new Basic(namespace, specifier);
     }
 
     static CombSym arbitrary(){
-        return new Basic(List.of("internal"), UUID.randomUUID().toString());
+        return new Basic("internal", UUID.randomUUID().toString());
     }
 
-    record Basic(List<String> namespace, String label) implements CombSym{
-        public List<String> getNamespace(){
-            return new ArrayList<>();
+    record Basic(String namespace, String label) implements CombSym{
+        public String getNamespace(){
+            return namespace();
+        }
+
+        public String getSpecifier(){
+            return label();
         }
 
         @Override
         public String toString(){
-            StringBuilder strB = new StringBuilder();
-            for(int i = 0; i < namespace.size(); i++){
-                strB.append(namespace.get(i));
-                if(i < namespace.size() -1) strB.append(".");
-            }
-            if(!strB.isEmpty()) strB.append(':');
-            strB.append(label);
-            return strB.toString();
+            return asString();
         }
     }
 }

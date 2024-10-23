@@ -3,13 +3,13 @@ package com.samsthenerd.beedev.language;
 import com.samsthenerd.beedev.language.corelib.PrimInt;
 import com.samsthenerd.beedev.language.core.FContext;
 import com.samsthenerd.beedev.language.core.FExpr;
-import com.samsthenerd.beedev.language.core.FExpr.FApp;
-import com.samsthenerd.beedev.language.core.FExpr.FFunc.FLambda;
-import com.samsthenerd.beedev.language.core.FExpr.FTypeAbs;
-import com.samsthenerd.beedev.language.core.FExpr.FTypeApp;
-import com.samsthenerd.beedev.language.core.FExpr.FVar;
+import com.samsthenerd.beedev.language.core.exprs.FApp;
+import com.samsthenerd.beedev.language.core.exprs.FFunc.FLambda;
+import com.samsthenerd.beedev.language.core.exprs.FTypeAbs;
+import com.samsthenerd.beedev.language.core.exprs.FTypeApp;
+import com.samsthenerd.beedev.language.core.exprs.FVar;
 import com.samsthenerd.beedev.language.core.FType;
-import com.samsthenerd.beedev.language.core.FType.FTypeVar;
+import com.samsthenerd.beedev.language.core.types.FTypeVar;
 
 public class TestPad {
 
