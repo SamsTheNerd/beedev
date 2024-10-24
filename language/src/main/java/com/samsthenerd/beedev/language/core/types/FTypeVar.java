@@ -18,7 +18,12 @@ public record FTypeVar(CombSym sym) implements FType {
         return symS.equals(sym()) ? withT : this;
     }
 
-    public String toString() {
+
+    public String debugString() {
         return "T[" + sym.toString() + "]";
     }
+
+    public String sfgString(){ return sym.toString();}
+
+    public String toString(){ return sfgString(); }
 }

@@ -13,6 +13,9 @@ public interface CombSym {
     String getSpecifier();
 
     default String asString(){
+        if(getNamespace().isEmpty()){
+            return getSpecifier();
+        }
         return getNamespace() + ":" + getSpecifier();
     }
 

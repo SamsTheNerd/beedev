@@ -1,0 +1,6 @@
+Lam[a;lam[a]{x -> x}]
+App[Int](Lam[a;lam[a]{x -> x}])
+ap(App[Int](Lam[a;lam[a]{x -> x}]);3)
+
+Lam[a;lam[a]{x -> lam[a]{y -> x}}]]
+Lam[a;lam[a]{x -> lam[a]{y -> y}}]]

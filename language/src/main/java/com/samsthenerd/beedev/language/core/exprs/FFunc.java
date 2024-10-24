@@ -6,6 +6,7 @@ import com.samsthenerd.beedev.language.core.FExpr;
 import com.samsthenerd.beedev.language.core.FType;
 import com.samsthenerd.beedev.language.core.types.FFuncType;
 
+import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -57,13 +58,13 @@ public interface FFunc extends FExpr {
         }
 
         @Override
-        public String toString() {
-            return "\\(" + argSym() + "): " + argType() + " -> " + expr();
+        public String sfgString(){
+            return "lam[" + argType.sfgString() + "]{" + argSym.asString() + " -> " + expr.sfgString() + "}";
         }
     }
 
     record FPrimFunc(FType fromT, FType toT,
-                     Function<FExpr, FExpr> f) implements com.samsthenerd.beedev.language.core.exprs.FFunc {
+                     Function<FExpr, FExpr> f, CombSym id) implements com.samsthenerd.beedev.language.core.exprs.FFunc {
         @Override
         public FType getArgType() {
             return fromT();
@@ -79,13 +80,17 @@ public interface FFunc extends FExpr {
             return f.apply(arg);
         }
 
+        public String sfgString(){
+            return id.toString();
+        }
+
         @Override
-        public String toString() {
+        public String debugString() {
             return "primFunc[" + fromT() + " -> " + toT() + "]@" + hashCode();
         }
     }
 
-    static com.samsthenerd.beedev.language.core.exprs.FFunc binaryPrimFunc(FType t1, FType t2, FType resT, BiFunction<FExpr, FExpr, FExpr> func) {
-        return new FPrimFunc(t1, new FFuncType(t2, resT), (a) -> new FPrimFunc(t2, resT, (b) -> func.apply(a, b)));
+    static com.samsthenerd.beedev.language.core.exprs.FFunc binaryPrimFunc(FType t1, FType t2, FType resT, BiFunction<FExpr, FExpr, FExpr> func, CombSym id) {
+        return new FPrimFunc(t1, new FFuncType(t2, resT), (a) -> new FPrimFunc(t2, resT, (b) -> func.apply(a, b), CombSym.of(id.asString() + "@" + UUID.randomUUID())), id);
     }
 }

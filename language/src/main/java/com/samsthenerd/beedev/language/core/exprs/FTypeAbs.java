@@ -30,7 +30,9 @@ public record FTypeAbs(CombSym absSym, FExpr expr) implements FExpr {
     }
 
     @Override
-    public String toString() {
-        return "Lam[" + absSym() + "].(" + expr() + ")";
+    public String sfgString() {
+        return "Lam[" + absSym().asString() + ";" + expr().sfgString() + "]";
     }
+
+    public String toString(){ return sfgString(); }
 }

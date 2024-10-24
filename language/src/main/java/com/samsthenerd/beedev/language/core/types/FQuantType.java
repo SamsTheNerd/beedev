@@ -19,8 +19,18 @@ public record FQuantType(CombSym faSym, FType typeBody) implements FType {
         return new com.samsthenerd.beedev.language.core.types.FQuantType(sym, withT.substitute(ctx, sym, withT));
     }
 
+
+
+    public String debugString() {
+        return "all[" + faSym() + "." + typeBody + "]";
+    }
+
+    public String sfgString(){
+        return "all[" + faSym() + ";" +  typeBody + "]";
+    }
+
     @Override
     public String toString() {
-        return "all[" + faSym() + "." + typeBody + "]";
+        return sfgString();
     }
 }

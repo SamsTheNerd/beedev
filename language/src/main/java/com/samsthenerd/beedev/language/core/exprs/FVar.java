@@ -27,4 +27,16 @@ public record FVar(CombSym sym, FType type) implements FExpr {
     public FExpr subType(FContext ctx, CombSym subSym, FType withT) {
         return new com.samsthenerd.beedev.language.core.exprs.FVar(sym, type().substitute(ctx, subSym, withT));
     }
+
+    public String debugString(){
+        return "V[" + sym.asString() + ": " + type.debugString() + "]";
+    }
+
+    public String sfgString(){
+        return sym.asString();
+    }
+
+    public String toString(){
+        return sfgString();
+    }
 }

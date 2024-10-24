@@ -14,4 +14,12 @@ public interface FExpr {
     boolean isValue();
 
     FExpr reduce(FContext ctx);
+
+    // a string representation with more details
+    default String debugString(){
+        return toString();
+    }
+
+    // a string representation matching our systemf grammar
+    String sfgString();
 }

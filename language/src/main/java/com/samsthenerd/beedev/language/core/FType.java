@@ -10,4 +10,12 @@ public interface FType {
 
     FType substitute(FContext ctx, CombSym sym, FType withT);
 
+    // a string representation with more details
+    default String debugString(){
+        return toString();
+    }
+
+    // a string representation matching our systemf grammar
+    String sfgString();
+
 }

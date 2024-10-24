@@ -17,4 +17,9 @@ public record FError(String eMsg) implements FType {
     public FType substitute(FContext ctx, CombSym sym, FType withT) {
         return this;
     }
+
+    @Override
+    public String sfgString() {
+        return "[TypeError: " + eMsg + "]";
+    }
 }

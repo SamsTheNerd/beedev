@@ -38,7 +38,9 @@ public record FTypeApp(FType type, FExpr expr) implements FExpr {
     }
 
     @Override
-    public String toString() {
-        return "App[" + type() + "](" + expr() + ")";
+    public String sfgString() {
+        return "App[" + type().sfgString() + "](" + expr().sfgString() + ")";
     }
+
+    public String toString(){ return sfgString(); }
 }

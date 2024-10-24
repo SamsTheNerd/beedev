@@ -21,9 +21,15 @@ public record PrimInt(int num) implements FPrimitive {
     }
 
     @Override
-    public String toString(){
+    public String debugString(){
         return "Int[" + num + "]";
     }
+
+    public String sfgString(){
+        return Integer.toString(num);
+    }
+
+    public String toString(){ return sfgString(); }
 
     public static FFunc INT_ADD = FFunc.binaryPrimFunc(PRIM_INT_TYPE, PRIM_INT_TYPE, PRIM_INT_TYPE, (a, b) -> {
         // youch! performance bad here
@@ -32,7 +38,7 @@ public record PrimInt(int num) implements FPrimitive {
             return new PrimInt(anum + bnum);
         }
         return new PrimInt(0); //this should not happen if the type checker is doing its job
-    }
+    }, CombSym.of(NAMESPACE, "intadd")
     );
 
     // TODO: make better way of constructing modules?

@@ -18,8 +18,13 @@ public record FFuncType(FType fromType, FType toType) implements FType {
         return new com.samsthenerd.beedev.language.core.types.FFuncType(fromType().substitute(ctx, sym, withT), toType().substitute(ctx, sym, withT));
     }
 
+
     @Override
-    public String toString() {
-        return fromType() + " -> " + toType();
+    public String sfgString() {
+        return "(" + fromType().sfgString() + " -> " + toType().sfgString() + ")";
+    }
+
+    public String toString(){
+        return sfgString();
     }
 }

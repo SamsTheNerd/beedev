@@ -36,7 +36,9 @@ public record FApp(FExpr func, FExpr arg) implements FExpr {
     }
 
     @Override
-    public String toString() {
-        return "app(" + func() + "; " + arg() + ")";
+    public String sfgString() {
+        return "ap(" + func() + "; " + arg() + ")";
     }
+
+    public String toString(){ return sfgString(); }
 }

@@ -20,7 +20,14 @@ public record FPrimType(CombSym name) implements FType {
     }
 
     @Override
-    public String toString() {
+    public String sfgString() {
+        return name().getSpecifier(); // probably fine? idk, need to figure out how to parse these anyhow
+    }
+
+    @Override
+    public String debugString() {
         return "Prim[" + name + "]";
     }
+
+    public String toString(){ return sfgString();}
 }
