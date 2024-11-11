@@ -1,9 +1,9 @@
-package com.samsthenerd.beedev.language.core;
+package com.samsthenerd.beedev.language;
 
-import com.samsthenerd.beedev.language.CombSym;
+import com.samsthenerd.beedev.language.sorts.FExpr;
+import com.samsthenerd.beedev.language.sorts.FType;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 // a collection of expressions and types that can be imported to an environment

@@ -1,11 +1,13 @@
 package com.samsthenerd.beedev.language.corelib;
 
 import com.samsthenerd.beedev.language.CombSym;
-import com.samsthenerd.beedev.language.core.exprs.FPrimitive;
-import com.samsthenerd.beedev.language.core.FModule;
-import com.samsthenerd.beedev.language.core.FType;
-import com.samsthenerd.beedev.language.core.types.FPrimType;
-import com.samsthenerd.beedev.language.core.exprs.FFunc;
+import com.samsthenerd.beedev.language.FContext;
+import com.samsthenerd.beedev.language.exprs.FPrimitive;
+import com.samsthenerd.beedev.language.FModule;
+import com.samsthenerd.beedev.language.sorts.FExpr;
+import com.samsthenerd.beedev.language.sorts.FType;
+import com.samsthenerd.beedev.language.types.FPrimType;
+import com.samsthenerd.beedev.language.exprs.FFunc;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
@@ -18,6 +20,11 @@ public record PrimInt(int num) implements FPrimitive {
     @Override
     public FType getType() {
         return PRIM_INT_TYPE;
+    }
+
+    @Override
+    public FExpr substitute(FContext ctx, CombSym sym, FExpr withExpr) {
+        return null;
     }
 
     @Override

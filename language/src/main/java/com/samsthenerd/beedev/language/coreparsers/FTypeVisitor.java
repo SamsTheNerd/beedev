@@ -3,11 +3,10 @@ package com.samsthenerd.beedev.language.coreparsers;
 import com.samsthenerd.beedev.language.CombSym;
 import com.samsthenerd.beedev.language.antlr.SystemfBaseVisitor;
 import com.samsthenerd.beedev.language.antlr.SystemfParser;
-import com.samsthenerd.beedev.language.antlr.SystemfParser.TypeabsContext;
-import com.samsthenerd.beedev.language.core.FType;
-import com.samsthenerd.beedev.language.core.types.FFuncType;
-import com.samsthenerd.beedev.language.core.types.FQuantType;
-import com.samsthenerd.beedev.language.core.types.FTypeVar;
+import com.samsthenerd.beedev.language.sorts.FType;
+import com.samsthenerd.beedev.language.types.FFuncType;
+import com.samsthenerd.beedev.language.types.FQuantType;
+import com.samsthenerd.beedev.language.types.FTypeVar;
 
 public class FTypeVisitor extends SystemfBaseVisitor<FType> {
 

@@ -1,38 +1,26 @@
 package com.samsthenerd.beedev.language;
 
-import com.samsthenerd.beedev.language.antlr.SystemfBaseListener;
-import com.samsthenerd.beedev.language.antlr.SystemfLexer;
-import com.samsthenerd.beedev.language.antlr.SystemfParser;
-import com.samsthenerd.beedev.language.antlr.SystemfParser.ExprContext;
 import com.samsthenerd.beedev.language.corelib.PrimInt;
-import com.samsthenerd.beedev.language.core.FContext;
-import com.samsthenerd.beedev.language.core.FExpr;
-import com.samsthenerd.beedev.language.core.exprs.FApp;
-import com.samsthenerd.beedev.language.core.exprs.FFunc.FLambda;
-import com.samsthenerd.beedev.language.core.exprs.FTypeAbs;
-import com.samsthenerd.beedev.language.core.exprs.FTypeApp;
-import com.samsthenerd.beedev.language.core.exprs.FVar;
-import com.samsthenerd.beedev.language.core.FType;
-import com.samsthenerd.beedev.language.core.types.FTypeVar;
-import com.samsthenerd.beedev.language.coreparsers.FExprVisitor;
-import com.samsthenerd.beedev.language.coreparsers.FTypeVisitor;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-
-import java.io.InputStream;
-import java.nio.file.Paths;
+import com.samsthenerd.beedev.language.exprs.FAnnot;
+import com.samsthenerd.beedev.language.exprs.FApp;
+import com.samsthenerd.beedev.language.exprs.FFunc.FLambda;
+import com.samsthenerd.beedev.language.exprs.FVar;
+import com.samsthenerd.beedev.language.sorts.FExpr;
+import com.samsthenerd.beedev.language.types.FFuncType;
+import com.samsthenerd.beedev.language.types.FQuantType;
+import com.samsthenerd.beedev.language.types.FTypeVar;
 
 public class TestPad {
 
-    static final FExpr primAddTest = new FApp(new FApp(PrimInt.INT_ADD, new PrimInt(1)), new PrimInt(2));
+//    static final FExpr primAddTest = new FApp(new FApp(PrimInt.INT_ADD, new PrimInt(1)), new PrimInt(2));
 
-    static final FExpr genId = new FTypeAbs(CombSym.of("a"),
-        new FLambda(
-            new FTypeVar(CombSym.of("a")),
-            CombSym.of("x"),
-            new FVar(CombSym.of("x"), new FTypeVar(CombSym.of("a")))
-        )
-    );
+//    static final FExpr genId = new FTypeAbs(CombSym.of("a"),
+//        new FLambda(
+//            new FTypeVar(CombSym.of("a")),
+//            CombSym.of("x"),
+//            new FVar(CombSym.of("x"), new FTypeVar(CombSym.of("a")))
+//        )
+//    );
 
     public static void main(String[] args){
 //        System.out.println("Prim Add Test");
@@ -65,25 +53,38 @@ public class TestPad {
 //        System.out.println(boopExpr);
 //        System.out.println(boopExpr.reduce(new FContext()));
 
-        runFile("boop.sysf");
+
+
+//        FExpr annid = new FAnnot(new FLambda(CombSym.of("x"), new FVar(CombSym.of("x"))),
+//            new FQuantType(CombSym.of("a"), new FFuncType(new FTypeVar(CombSym.of("a")), new FTypeVar(CombSym.of("a")))));
+//
+//        System.out.println(annid.synthType(new TypeEnv()).get().type());
+//
+//        System.out.println(new FApp(annid, new PrimInt(2)));
+//        System.out.println(new FApp(annid, new PrimInt(2)).synthType(new TypeEnv()).get().type());
+
+
+
+
+//        runFile("boop.sysf");
     }
 
     private static void runFile(String filename){
-        InputStream resourceAsStream = TestPad.class.getClassLoader().getResourceAsStream(filename);
-        System.out.println("Testing file: " + filename);
-        try {
-            SystemfLexer lexer = new SystemfLexer(CharStreams.fromStream(resourceAsStream));
-            SystemfParser parser = new SystemfParser(new CommonTokenStream(lexer));
-            for(ExprContext ctx : parser.prog().expr()){
-                FExpr expr = FExprVisitor.INSTANCE.visitExpr(ctx);
-                System.out.println("\noriginal:" + expr.sfgString());
-                System.out.println("type: " + expr.getType(new FContext()).sfgString());
-                System.out.println("reduced: " + expr.reduce(new FContext()).sfgString());
-                System.out.println("type of reduced: " + expr.reduce(new FContext()).getType(new FContext()).sfgString());
-            }
-        } catch (Exception e){
-            System.out.println(e);
-        }
+//        InputStream resourceAsStream = TestPad.class.getClassLoader().getResourceAsStream(filename);
+//        System.out.println("Testing file: " + filename);
+//        try {
+//            SystemfLexer lexer = new SystemfLexer(CharStreams.fromStream(resourceAsStream));
+//            SystemfParser parser = new SystemfParser(new CommonTokenStream(lexer));
+//            for(ExprContext ctx : parser.prog().expr()){
+//                FExpr expr = FExprVisitor.INSTANCE.visitExpr(ctx);
+//                System.out.println("\noriginal:" + expr.sfgString());
+//                System.out.println("type: " + expr.getType(new FContext()).sfgString());
+//                System.out.println("reduced: " + expr.reduce(new FContext()).sfgString());
+//                System.out.println("type of reduced: " + expr.reduce(new FContext()).getType(new FContext()).sfgString());
+//            }
+//        } catch (Exception e){
+//            System.out.println(e);
+//        }
 //        FExprVisitor.INSTANCE.visitExpr(parser.prog().expr(0));
     }
 }

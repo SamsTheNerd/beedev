@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Everyone say thank you winfy for the turbo poggers hamt implementation.
@@ -379,11 +381,23 @@ public class Hamt<K, V> implements Iterable<Map.Entry<K, V>> {
         return out;
     }
 
+    public Hamt<K, V> dissocAll(Iterable<? extends K> values) {
+        var out = this;
+        for (var v : values) {
+            out = out.dissoc(v);
+        }
+        return out;
+    }
+
     static<K, V> Hamt<K, V> ofIterable(Iterable<Map.Entry<? extends K, ? extends V>> values) {
         return Hamt.<K, V>empty().assocAll(values);
     }
 
     HamtNode<K, V> root() { return root; }
+
+    public Stream<Entry<K,V>> stream(){
+        return StreamSupport.stream(spliterator(), false);
+    }
 
     // iterator over a HAMT
     @Override
