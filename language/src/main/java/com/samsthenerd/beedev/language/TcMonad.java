@@ -12,6 +12,7 @@ import com.samsthenerd.beedev.utils.Unit;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 // helps structure our type inference/checking. based on TcMonad from that one paper.
@@ -36,6 +37,11 @@ public class TcMonad<T> {
         return new TcMonad<>(TcPayload.wrap(new Right<>(err)));
     }
 
+    // throws an error if check is false
+    public static TcMonad<Unit> guardErr(boolean check, String err){
+        return check ? unit() : error(err);
+    }
+
     public <S> TcMonad<S> bind(Function<T, TcMonad<S>> func){
         return new TcMonad<>((te, ve) -> switch (payload.eval(te, ve)) {
                 case Left(T contents) -> func.apply(contents).eval(te, ve);
@@ -45,6 +51,27 @@ public class TcMonad<T> {
 
     public <S> TcMonad<S> seq(TcMonad<S> next){
         return bind(x -> next);
+    }
+
+    public static <T> TcMonad<T> seqAll(Iterable<TcMonad<T>> monads){
+        TcMonad<T> monad = null;
+        for(var m : monads){
+            if(monad == null) monad = m;
+            else monad = monad.seq(m);
+        }
+        return monad;
+    }
+
+    public static <T> TcMonad<List<T>> foldList(Iterable<TcMonad<T>> monads){
+        TcMonad<List<T>> monad = of(List.of());
+        for(var m : monads){
+            monad.bind(list -> m.bind(v -> {
+                var llist = new LinkedList<>(list);
+                llist.add(v);
+                return of(llist);
+            }));
+        }
+        return monad;
     }
 
     public <S> TcMonad<S> fmap(Function<T, S> map){
@@ -63,6 +90,10 @@ public class TcMonad<T> {
         return of(Unit.UNIT);
     }
 
+    public <U, S> TcMonad<U> biOp(TcMonad<S> otherArg, BiFunction<? super T, ? super S, ? extends U> binaryOperator){
+        return bind(t -> otherArg.fmap(s -> binaryOperator.apply(t, s)));
+    }
+
     public static TcMonad<Unit> write(FMetaVar meta, FType type){
         return new TcMonad<>((te, ve) -> {
             te.put(meta, type);
@@ -77,7 +108,6 @@ public class TcMonad<T> {
     // run an action in the extended scope
     public static <S> TcMonad<S> extendVars(FVar var, FType type, TcMonad<S> scoped){
         return new TcMonad<>((te, ve) -> scoped.eval(te, ve.assoc(var, type)));
-//        return new TcMonad<>(new Unit(), typeMappingsSubsts, varTypingsSubsts.assoc(var, type), errorMsg);
     }
 
     public static TcMonad<Optional<FType>> lookupVar(FVar var){
@@ -134,19 +164,45 @@ public class TcMonad<T> {
         });
     }
 
+    // returns a function type unified with the given type
+    public static TcMonad<FFuncType> unifyFun(FType type){
+        if(type instanceof FFuncType ftype) return of(ftype);
+        FType argTy = FMetaVar.makeNew();
+        FType resTy = FMetaVar.makeNew();
+        FFuncType ftype = new FFuncType(argTy, resTy);
+        return unify(type, new FFuncType(argTy, resTy)).with(ftype);
+    }
+
     // gets all types in the environment ?
     public static TcMonad<List<FType>> getEnvTypes(){
         return new TcMonad<>((te, ve) -> new Left<>(ve.stream().map(Entry::getValue).toList()));
     }
 
     // gets all unbound meta vars in the given types
-    public static TcMonad<Set<FMetaVar>> getMetaVars(List<FType> inTypes){
-        // TODO: zonking ??
-        return of(inTypes.stream().map(TypeHelpers::getMetaVars).reduce(new HashSet<>(), (a,b) -> {a.addAll(b); return a;}));
+    public static TcMonad<List<FMetaVar>> getMetaVars(List<FType> inTypes){
+        return inTypes.stream()
+            .map(TcMonad::zonkType)
+            .map(tc -> tc.fmap(TypeHelpers::getMetaVars))
+            .reduce(of(new ArrayList<>()), (m1, m2) -> m1.biOp(m2, (a,b) -> {a.addAll(b); return a;})
+            .fmap(list -> list.stream().distinct().toList()));
     }
 
-    public static TcMonad<Set<FTypeVar>> getFreeTypeVars(List<FType> inTypes){
-        return of(inTypes.stream().map(t -> TypeHelpers.getFreeTypeVars(t, new HashSet<>())).reduce(new HashSet<>(), (a,b) -> {a.addAll(b); return a;}));
+    public static TcMonad<List<FTypeVar>> getFreeTypeVars(List<FType> inTypes){
+        return inTypes.stream()
+            .map(TcMonad::zonkType)
+            .map(tc -> tc.fmap(ty -> TypeHelpers.getFreeTypeVars(ty, new HashSet<>())))
+            .reduce(of(new ArrayList<>()), (m1, m2) -> m1.biOp(m2, (a,b) -> {a.addAll(b); return a;}))
+            .fmap(list -> list.stream().distinct().toList());
+
+    }
+
+    public static TcMonad<FType> zonkType(FType type){
+        return switch(type){
+            case FQuantType(List<FTypeVar> qVars, FType typeBody) -> zonkType(typeBody).fmap(zonked -> new FQuantType(qVars, zonked));
+            case FFuncType(FType argT, FType resT) -> zonkType(argT).bind(zArgT -> zonkType(resT).fmap(zResT -> new FFuncType(zArgT, zResT)));
+            case FMetaVar mv -> TcMonad.read(mv).bind(opt -> opt.isEmpty() ? of(type) : zonkType(opt.get()).bind(zTy -> TcMonad.write(mv, zTy).with(zTy)));
+            default -> of(type);
+        };
     }
 
     @FunctionalInterface

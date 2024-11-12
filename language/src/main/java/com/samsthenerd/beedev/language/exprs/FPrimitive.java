@@ -6,6 +6,7 @@ import com.samsthenerd.beedev.language.TcExpected.TcInfer;
 import com.samsthenerd.beedev.language.sorts.FExpr;
 import com.samsthenerd.beedev.language.sorts.FType;
 import com.samsthenerd.beedev.language.types.FMetaVar;
+import com.samsthenerd.beedev.utils.TcHelpers;
 import com.samsthenerd.beedev.utils.Unit;
 
 // used to add primitive-ish types. This likely won't be the preferred way to add new types.
@@ -32,10 +33,7 @@ public interface FPrimitive extends FExpr {
 //        return this;
 //    }
 
-//    default TcMonad<Unit> typeCheck(TcMonad<Unit> env, TcExpected expected){
-//        return switch(expected){
-//            case TcInfer(FMetaVar meta) -> env.write(meta, getType());
-//            case TcCheck(FType type) -> null; // TODO: figure out inference sorta thing here ?
-//        };
-//    }
+    default TcMonad<Unit> typeCheck(TcExpected expected){
+        return TcHelpers.instPoly(getType(), expected);
+    }
 }

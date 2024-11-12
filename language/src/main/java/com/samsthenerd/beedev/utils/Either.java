@@ -16,6 +16,14 @@ public sealed interface Either<L, R>{
     <LS, RS> Either<LS, RS> flatMap(Function<? super L, ? extends Either<? extends LS, ? extends RS>> leftMap,
                                     Function<? super R, ? extends Either<? extends LS, ? extends RS>> rightMap);
 
+    default <LS> Either<LS, R> lMap(Function<? super L, ? extends LS> mapFunc){
+        return map(mapFunc, Function.identity());
+    }
+
+    default <RS> Either<L, RS> rMap(Function<? super R, ? extends RS> mapFunc){
+        return map(Function.identity(), mapFunc);
+    }
+
     <U> U reduce(Function<? super L, ? extends U> leftMap, Function<? super R, ? extends U> rightMap);
 
     record Left<L, R>(L contents) implements Either<L, R>{

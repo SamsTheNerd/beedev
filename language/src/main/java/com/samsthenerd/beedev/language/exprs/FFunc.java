@@ -2,10 +2,16 @@ package com.samsthenerd.beedev.language.exprs;
 
 import com.samsthenerd.beedev.language.CombSym;
 import com.samsthenerd.beedev.language.FContext;
+import com.samsthenerd.beedev.language.TcExpected;
+import com.samsthenerd.beedev.language.TcExpected.TcCheck;
+import com.samsthenerd.beedev.language.TcExpected.TcInfer;
+import com.samsthenerd.beedev.language.TcMonad;
 import com.samsthenerd.beedev.language.sorts.FExpr;
 import com.samsthenerd.beedev.language.sorts.FType;
 import com.samsthenerd.beedev.language.types.FFuncType;
+import com.samsthenerd.beedev.language.types.FMetaVar;
 import com.samsthenerd.beedev.language.types.FTypeVar;
+import com.samsthenerd.beedev.utils.Unit;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -29,57 +35,51 @@ public interface FFunc extends FExpr {
 //    }
 
     record FLambda(FVar arg,
-                   FExpr expr) implements FFunc {
-//        public FType getType(FContext ctx) {
-//            return new FFuncType(argType(), expr.getType(ctx));
-//        }
-//
-//        public FExpr substitute(FContext ctx, CombSym sym, FExpr withExpr) {
-//            return sym.equals(argSym()) ? this :
-//                new FLambda(sym, expr.substitute(ctx, sym, withExpr));
-//        }
-//
-//        public FExpr subType(FContext ctx, CombSym sym, FType withT) {
-//            return new FLambda(argType().substitute(ctx, sym, withT), argSym(), expr().subType(ctx, sym, withT));
-//        }
-
-//        @Override
-//        public Optional<SynthRes> synthType(TypeEnv env) {
-//            FType t = new FTypeVar(CombSym.arbitrary());
-//            Optional<SynthRes> resOpt = expr.synthType(env.with(argSym, t));
-//            if(resOpt.isPresent() && resOpt.get().type().isRho(env)){
-//                FType fType = new FFuncType(t, resOpt.get().type());
-//                return Optional.of(new SynthRes(fType, env));
-//            }
-//            return Optional.empty();
-//        }
+                   FExpr body) implements FFunc {
 
         // TODO: need like, skolo somethin here?
+//
+//        public FExpr apply(FContext ctx, FExpr arg) {
+//            return expr().substitute(ctx, argSym, arg);
+//        }
 
-        public FExpr apply(FContext ctx, FExpr arg) {
-            return expr().substitute(ctx, argSym, arg);
+
+        @Override
+        public TcMonad<Unit> typeCheck(TcExpected expected) {
+            // assuming alpha renaming has already happened
+            return switch (expected) {
+                case TcCheck(FType type) -> TcMonad.unifyFun(type).bind(ftype ->
+                    TcMonad.extendVars(arg, ftype.fromType(), body.checkType(ftype.toType()))
+                );
+                case TcInfer(FMetaVar mv) -> {
+                    FType argVT = FMetaVar.makeNew();
+                    yield TcMonad.extendVars(arg, argVT, body.synthType())
+                        .bind(bodyTy -> TcMonad.write(mv, new FFuncType(argVT, bodyTy)));
+                }
+            };
         }
 
         @Override
         public String sfgString(){
-            return "lam{" + argSym.asString() + " -> " + expr.sfgString() + "}";
+            return "\\" + arg.sfgString() + " -> " + body.sfgString();
         }
     }
 
     record FPrimFunc(FType annot,
                      Function<FExpr, FExpr> f, CombSym id) implements FFunc {
-//        @Override
-//        public FType getType(FContext ctx) {
-//            return new FFuncType(fromT(), toT());
-//        }
 
-        @Override
-        public FExpr apply(FContext ctx, FExpr arg) {
-            return f.apply(arg);
-        }
+//        @Override
+//        public FExpr apply(FContext ctx, FExpr arg) {
+//            return f.apply(arg);
+//        }
 
         public String sfgString(){
             return id.toString();
+        }
+
+        @Override
+        public TcMonad<Unit> typeCheck(TcExpected expected) {
+            return null;
         }
 
         @Override
@@ -87,9 +87,9 @@ public interface FFunc extends FExpr {
             return "primFunc[" + annot + "]@" + hashCode();
         }
 
-        public FExpr substitute(FContext ctx, CombSym sym, FExpr withExpr) {
-            return this;
-        }
+//        public FExpr substitute(FContext ctx, CombSym sym, FExpr withExpr) {
+//            return this;
+//        }
 
 //        @Override
 //        public Optional<SynthRes> synthType(TypeEnv env) {

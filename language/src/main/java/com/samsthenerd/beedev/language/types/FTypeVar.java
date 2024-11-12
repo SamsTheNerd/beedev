@@ -15,6 +15,10 @@ public record FTypeVar(CombSym sym, int rank) implements FType {
 //        return rank <= k;
 //    }
 
+    public static FTypeVar makeNew(){
+        return new FTypeVar(CombSym.arbitrary());
+    }
+
     public FType substitute(Hamt<FTypeVar, FType> subst) {
         return subst.get(this).orElse(this);
     }

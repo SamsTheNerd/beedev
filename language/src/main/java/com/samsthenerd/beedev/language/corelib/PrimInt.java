@@ -22,10 +22,10 @@ public record PrimInt(int num) implements FPrimitive {
         return PRIM_INT_TYPE;
     }
 
-    @Override
-    public FExpr substitute(FContext ctx, CombSym sym, FExpr withExpr) {
-        return null;
-    }
+//    @Override
+//    public FExpr substitute(FContext ctx, CombSym sym, FExpr withExpr) {
+//        return null;
+//    }
 
     @Override
     public String debugString(){

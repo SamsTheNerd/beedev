@@ -28,6 +28,7 @@ public interface FExpr {
         return typeCheck(new TcInfer(newVar)).seq(
             TcMonad.read(newVar).fmap(opt -> opt.orElse(newVar))
         );
+//        return typeCheck(new TcInfer(newVar)).with(newVar);
     }
 
     // we assume everything here is a monotype.

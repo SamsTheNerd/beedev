@@ -20,7 +20,11 @@ public record FFuncType(FType fromType, FType toType) implements FType {
 
     @Override
     public String sfgString() {
-        return "(" + fromType().sfgString() + " -> " + toType().sfgString() + ")";
+        String fromTypeRes = fromType().sfgString();
+        if(fromType() instanceof FFuncType){
+            fromTypeRes = "(" + fromTypeRes + ")";
+        }
+        return fromTypeRes + " -> " + toType().sfgString();
     }
 
 //    @Override

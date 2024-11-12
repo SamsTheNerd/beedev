@@ -37,29 +37,29 @@ public class TypeHelpers {
     // and then expose sensible hooks for everything in an interface or something so it can be expanded-ish
 
     // gets all metavars in a type
-    public static Set<FMetaVar> getMetaVars(FType type){
+    public static List<FMetaVar> getMetaVars(FType type){
         if(type instanceof FMetaVar mv){
-            return Set.of(mv);
+            return List.of(mv);
         }
         if(type instanceof FFuncType(FType fromType, FType toType)){
-            Set<FMetaVar> mvs = getMetaVars(fromType);
+            List<FMetaVar> mvs = new ArrayList<>(getMetaVars(fromType));
             mvs.addAll(getMetaVars(toType));
             return mvs;
         }
         if(type instanceof FQuantType(List<FTypeVar> qVars, FType typeBody)){
             return getMetaVars(typeBody);
         }
-        return Set.of();
+        return List.of();
         // TODO: use an accumulator?
     }
 
-    public static Set<FTypeVar> getFreeTypeVars(FType type, Set<FTypeVar> bound){
+    public static List<FTypeVar> getFreeTypeVars(FType type, Set<FTypeVar> bound){
         if(type instanceof FTypeVar mv){
-            if(!bound.contains(mv)) return Set.of(mv);
-            return Set.of();
+            if(!bound.contains(mv)) return List.of(mv);
+            return List.of();
         }
         if(type instanceof FFuncType(FType fromType, FType toType)){
-            Set<FTypeVar> mvs = getFreeTypeVars(fromType, bound);
+            List<FTypeVar> mvs = new ArrayList<>(getFreeTypeVars(fromType, bound));
             mvs.addAll(getFreeTypeVars(toType, bound));
             return mvs;
         }
@@ -68,8 +68,23 @@ public class TypeHelpers {
             newBounds.addAll(qVars);
             return getFreeTypeVars(typeBody, newBounds);
         }
-        return Set.of();
+        return List.of();
         // TODO: use an accumulator? or atleast not a set like this. actually maybe these should just be directly in the tcmonad idk
     }
 
+    public static FType canonicalize(FType type){
+        if(type instanceof FQuantType(List<FTypeVar> qVars, FType typeBody)){
+            int n = 1;
+            Hamt<FTypeVar, FType> subst = Hamt.empty();
+            List<FTypeVar> newBinders = new ArrayList<>();
+            for(var tv : qVars){
+                var nv = new FTypeVar(CombSym.of("t" + n));
+                subst = subst.assoc(tv, nv);
+                newBinders.add(nv);
+                n++;
+            }
+            return new FQuantType(newBinders, typeBody.substitute(subst));
+        }
+        return type;
+    }
 }

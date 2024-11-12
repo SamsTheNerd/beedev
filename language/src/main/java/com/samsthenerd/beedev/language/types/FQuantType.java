@@ -22,7 +22,7 @@ public record FQuantType(List<FTypeVar> qVars, FType typeBody) implements FType 
     }
 
     public String sfgString(){
-        return "all[" + qVars() + ";" +  typeBody + "]";
+        return "Forall " + qVars().stream().map(Object::toString).reduce((a,b) -> a + ", " + b).orElse("") + " => " +  typeBody;
     }
 
 //    @Override
